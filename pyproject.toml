@@ -1,0 +1,25 @@
+[project]
+name = "kabu"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Shogo Goto",email = "gotoadmn0605@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "yfinance (>=0.2.65,<0.3.0)",
+    "pandas (>=2.3.2,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.1"
+pynvim = "^0.5.2"
+ruff = "^0.12.11"
+pre-commit = "^4.3.0"
+
