@@ -82,11 +82,7 @@ def to_theorical_price_and_rate(
     eps_ls: list[EPS],
 ) -> tuple[pd.Series, pd.Series]:
     """理論株価と割安比を返す."""
-    start_date = real_stock_price.index[0]
     end_date = real_stock_price.index[-1]
-
-    dates = pd.date_range(start=start_date, end=end_date, freq="D")
-
     theoretical_price_sr = resample_eps_to_daily(eps_ls, end_date.date()) * 10
     theoretical_price_sr.name = "theoretical_price"
     underval_rate_sr = (theoretical_price_sr - real_stock_price) / theoretical_price_sr
@@ -116,10 +112,8 @@ def find_latest_catch_up_date(
     underval_rate_sr: pd.Series,
 ) -> CatchUpDate | None:
     """割安期間の直後に来る追いつき日を返す."""
-    # 0をクロスするすべての点を取得
     all_crossings = find_crossings(underval_rate_sr, level=0.0)
 
-    # 正から負へのクロス（追いつき）のみをフィルタリング
     catch_up_dates = []
     for t in all_crossings:
         # クロス直前の値を取得
@@ -127,16 +121,12 @@ def find_latest_catch_up_date(
         if value_before > 0:
             catch_up_dates.append(t)
 
-    # 割安期間の終了日以降で、最も早い追いつき日を探す
-    # term.end は date オブジェクトなので、比較のために Timestamp に変換する
     term_end_ts = pd.Timestamp(term.end)
-
     future_catch_ups = [d for d in sorted(catch_up_dates) if d > term_end_ts]
 
     if not future_catch_ups:
         return None
 
-    # 見つかった最初の追いつき日を返す
     latest_catch_up = future_catch_ups[0]
 
     return CatchUpDate(date=latest_catch_up.date())
