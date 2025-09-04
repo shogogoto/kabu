@@ -51,3 +51,48 @@ def find_crossings(
 def find_zero_crossings(series: pd.Series) -> list[pd.Timestamp]:
     """pandas.Seriesのゼロクロス点を線形補間で探す."""
     return find_crossings(series, level=0.0)
+
+
+def find_intervals(
+    series: pd.Series,
+    level: float = 0.0,
+    mode: str = "above",
+) -> list[tuple[pd.Timestamp, pd.Timestamp]]:
+    """Seriesが指定したレベル以上または以下の区間を特定する.
+
+    Args:
+        series: 日付/時刻をインデックスに持つpandas.Series.
+        level: 区間を判定するための閾値 (デフォルト: 0.0).
+        mode: 'above' または 'below' を指定 (デフォルト: 'above').
+
+    Returns:
+        条件に合う区間の (開始時刻, 終了時刻) のタプルのリスト.
+
+    """
+    if mode not in {"above", "below"}:
+        msg = "modeは 'above' または 'below' である必要があります"
+        raise ValueError(msg)
+
+    valid_series = series.dropna()
+    if len(valid_series) < 1:
+        return []
+
+    cross_points = find_crossings(valid_series, level=level)
+
+    start_time = valid_series.index[0]
+    end_time = valid_series.index[-1]
+    boundaries = sorted({start_time, *cross_points, end_time})
+
+    intervals = []
+    for i in range(len(boundaries) - 1):
+        t1 = boundaries[i]
+        t2 = boundaries[i + 1]
+        if t1 == t2:
+            continue
+        mid_point_value = valid_series.asof(t1 + (t2 - t1) / 2)
+        is_above = mid_point_value > level
+        is_below = mid_point_value < level
+        if (mode == "above" and is_above) or (mode == "below" and is_below):
+            intervals.append((t1, t2))
+
+    return intervals
