@@ -1,5 +1,8 @@
 """可視化."""
 
+import pandas as pd
+from matplotlib import pyplot as plt
+
 
 def save_image():
     """Save plot as image."""
@@ -18,3 +21,13 @@ def save_image():
     # plt.xlabel("Date")
     # plt.ylabel("EPS")
     # plt.grid(True)
+
+
+def saveimg(df: pd.DataFrame, title: str):
+    plt.figure(figsize=(10, 6))
+    plt.plot(df.index, df)
+    plt.title(title)
+    plt.xlabel("Date")
+    plt.ylabel("EPS")
+    plt.grid(True)
+    plt.savefig(f"{title}.png")

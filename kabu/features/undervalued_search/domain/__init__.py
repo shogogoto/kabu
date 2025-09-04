@@ -22,7 +22,7 @@ class CatchUpDate(BaseModel):
 
 
 class EPS(BaseModel):
-    """Earnings Per Share."""
+    """Earnings Per Share 1株当たり純利益."""
 
     report_date: Annotated[date, BeforeValidator(date_from_iso_string)] = Field(
         title="決算報告日",
