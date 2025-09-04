@@ -6,10 +6,15 @@ authors = [
     {name = "Shogo Goto",email = "gotoadmn0605@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.9, <4.0"
 dependencies = [
     "yfinance (>=0.2.65,<0.3.0)",
-    "pandas (>=2.3.2,<3.0.0)"
+    "pandas (>=2.3.2,<3.0.0)",
+    "alpha-vantage (>=3.0.0,<4.0.0)",
+    "pydantic-settings (>=2.10.1,<3.0.0)",
+    "pydantic (>=2.11.7,<3.0.0)",
+    "jquants-api-client (>=1.8.0,<2.0.0)",
+    "pandas-datareader (>=0.10.0,<0.11.0)"
 ]
 
 
@@ -22,4 +27,5 @@ pytest = "^8.4.1"
 pynvim = "^0.5.2"
 ruff = "^0.12.11"
 pre-commit = "^4.3.0"
+pytest-watch = "^4.2.0"
 
