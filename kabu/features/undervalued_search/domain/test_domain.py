@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 
 from kabu.features.undervalued_search.domain import EPS, resample_eps_to_daily
+from kabu.shared.utils import find_zero_crossings
 from kabu.shared.visualize import saveimg
 
 
@@ -92,6 +93,14 @@ def test_find_undervalued_terms():
     underval_rate_sr.name = "underval_rate"
 
     df = pd.concat([real_price_sr, theoretical_price_sr], axis=1)  # DataFrameにまとめる
+    zero_crossing_dates = find_zero_crossings(underval_rate_sr)
+
+    def add_zero_crossings(ax):
+        for date in zero_crossing_dates:
+            ax.axvline(x=date, color="r", linestyle="--", linewidth=1)
+
+    df = pd.concat([real_price_sr, theoretical_price_sr], axis=1)  # DataFrameにまとめる
+    saveimg(df, "threo_real_price", proc_ax=add_zero_crossings)
 
     # saveimg(df, "threo_real_price")
     # saveimg(underval_rate_sr, "underval_rate")
@@ -125,50 +134,6 @@ def test_find_undervalued_terms():
     # assert undervalued_terms[0][1] == pd.Timestamp("2024-09-29")
     # assert undervalued_terms[1][0] == pd.Timestamp("2024-10-07")
     # assert undervalued_terms[1][1] == pd.Timestamp("2024-12-25")
-
-
-def test_find_zero_underval_rate_dates():
-    """underval_rateが0に近くなる日付を検出する."""
-    # 2024-01-01 ~ 2024-12-31 を検索期間とする
-    v1 = 100.0
-    v2 = 50.0
-    v3 = 90.0
-    v4 = 70.0
-
-    eps_ls = [
-        EPS(report_date="2023-12-31", value=v1),
-        EPS(report_date="2024-03-31", value=v2),
-        EPS(report_date="2024-06-30", value=v3),
-        EPS(report_date="2024-09-30", value=v4),
-    ]
-    start_date = "2024-01-01"
-    end_date = "2024-12-31"
-    dates = pd.date_range(start=start_date, end=end_date, freq="D")
-
-    # 実株価のテストケース sinカーブ
-    price_center = 800  # 中心
-    amplitude = 400  # 振幅
-    days = len(dates)  # 2024 is a leap year 閏年
-    real_price = price_center + amplitude * np.sin(np.linspace(0, 4 * np.pi, days))
-    real_price_sr = pd.Series(real_price, index=dates, name="real_price")
-
-    theoretical_price_sr = resample_eps_to_daily(eps_ls, end_date) * 10
-    theoretical_price_sr.name = "theoretical_price"
-
-    underval_rate_sr = (theoretical_price_sr - real_price_sr) / theoretical_price_sr
-    underval_rate_sr.name = "underval_rate"
-
-    epsilon = 1e-2  # 許容する誤差
-    zero_crossing_dates = underval_rate_sr[
-        np.abs(underval_rate_sr) < epsilon
-    ].index.tolist()
-
-    def add_zero_crossings(ax):
-        for date in zero_crossing_dates:
-            ax.axvline(x=date, color="r", linestyle="--", linewidth=1)
-
-    df = pd.concat([real_price_sr, theoretical_price_sr], axis=1)  # DataFrameにまとめる
-    saveimg(df, "threo_real_price", proc_ax=add_zero_crossings)
 
 
 def test_find_catchup_dates():
