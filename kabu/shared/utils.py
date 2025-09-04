@@ -4,22 +4,26 @@ import numpy as np
 import pandas as pd
 
 
-def find_zero_crossings(series: pd.Series) -> list[pd.Timestamp]:
-    """pandas.Seriesのゼロクロス点を線形補間で探す.
-    NaN値は無視される.
+def find_crossings(
+    series: pd.Series,
+    level: float = 0.0,
+) -> list[pd.Timestamp]:
+    """pandas.Seriesが指定したレベルをクロスする点を線形補間で探す.
 
     Args:
         series: 日付/時刻をインデックスに持つpandas.Series
+        level: クロスを検出する値のレベル (デフォルト: 0.0)
+        ceil_to_date: タイムスタンプを日付に切り上げて返すか (デフォルト: False)
 
     Returns:
-        ゼロクロスした点のタイムスタンプのリスト
+        クロスした点のタイムスタンプまたは日付のリスト
 
     """
-    # NaN値を除外した新しいSeriesを作成
-    valid_series = series.dropna()
+    # levelを引いて、ゼロクロスの問題に変換
+    shifted_series = series - level
+    valid_series = shifted_series.dropna()
 
-    # データが2点未満の場合はクロスしようがない
-    if len(valid_series) < 2:
+    if len(valid_series) < 2:  # noqa: PLR2004
         return []
 
     # 符号が変わる場所を探す
@@ -31,7 +35,6 @@ def find_zero_crossings(series: pd.Series) -> list[pd.Timestamp]:
         p1_idx, p2_idx = valid_series.index[idx], valid_series.index[idx + 1]
         p1_val, p2_val = valid_series.iloc[idx], valid_series.iloc[idx + 1]
 
-        # ゼロ除算を避ける
         if p1_val == p2_val:
             continue
 
@@ -42,5 +45,9 @@ def find_zero_crossings(series: pd.Series) -> list[pd.Timestamp]:
         cross_time_offset = -p1_val * (time_diff / val_diff)
         cross_time = p1_idx + cross_time_offset
         crossings.append(cross_time)
-
     return crossings
+
+
+def find_zero_crossings(series: pd.Series) -> list[pd.Timestamp]:
+    """pandas.Seriesのゼロクロス点を線形補間で探す."""
+    return find_crossings(series, level=0.0)
