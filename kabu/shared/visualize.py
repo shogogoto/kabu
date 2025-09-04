@@ -27,12 +27,15 @@ def save_image():
     # plt.grid(True)
 
 
+type AxesProc = Callable[[Axes], None]
+
+
 def saveimg(
     df: pd.DataFrame,
     title: str,
     xlabel: str = "Date",
     ylabel: str = "Price",
-    proc_ax: Callable[[Axes], None] = lambda _ax: None,
+    ax_proces: Iterable[AxesProc] = (),
 ):
     """Save plot as image."""
     # plt.figure(figsize=(12, 6))
@@ -46,9 +49,10 @@ def saveimg(
     fig, ax = plt.subplots(figsize=(12, 6))
     df.plot(ax=ax, title=title, grid=True)
 
-    proc_ax(ax)
+    for p in ax_proces:
+        p(ax)
 
-    ax.grid(True)
+    ax.grid(True)  # noqa: FBT003
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     fig.savefig(f"{title}.png")
@@ -66,7 +70,9 @@ def add_axes_vertical_line(dates: Iterable[date]) -> Callable[[Axes], None]:
 
 
 def add_axes_span(
-    intervals: Iterable[tuple[date, date]], color: str = "lightgray", alpha: float = 0.5
+    intervals: Iterable[tuple[date, date]],
+    color: str = "lightgray",
+    alpha: float = 0.5,
 ) -> Callable[[Axes], None]:
     """指定された区間の背景を色付けする関数を返す.
 
@@ -77,6 +83,7 @@ def add_axes_span(
 
     Returns:
         Axesを処理する関数.
+
     """
 
     def _f(ax: Axes):

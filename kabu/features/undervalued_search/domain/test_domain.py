@@ -1,10 +1,19 @@
+"""domain test."""
+
+from datetime import date
+
 import numpy as np
 import pandas as pd
 import pytest
+from pandas.core.common import flatten
 
-from kabu.features.undervalued_search.domain import EPS, resample_eps_to_daily
-from kabu.shared.utils import find_zero_crossings
-from kabu.shared.visualize import saveimg
+from kabu.features.undervalued_search.domain import (
+    EPS,
+    find_latest_catch_up_date,
+    find_undervalued_terms,
+    resample_eps_to_daily,
+    to_theorical_price_and_rate,
+)
 
 
 def test_resample():
@@ -41,28 +50,17 @@ def test_resample():
         dailies["2025-01-02"]
 
 
-"""割安期間を検出する.
-
-まず、 epsのdailyの値を10倍したものを理論株価(theoretical_stock_price)とする
-実株価を取得して以下のように割安比率(underval_rate)を計算する
-
-underval_rate = (理論株価 - 実株価) / 理論株価
-
-これがunderval_target_rateよりも高い日を割安期間として取得する
-割安期間のリストが得られる
-
-また、underval_target_rateが 正から負へ変わるときを 追いつき日(CatchUpDate)一覧として取得する
-
-これには２つのシナリオがある
-1. 理論株価より低かった実株価が上がって理論株価に追いついた
-2. 決算発表日でEPSが更新されるのに伴って理論株価が下がって
+def mk_real_price_sr(dates: list[date]) -> pd.Series:
+    """実株価のテストケース sinカーブ."""
+    price_center = 800  # 中心
+    amplitude = 400  # 振幅
+    days = len(dates)  # 2024 is a leap year 閏年
+    real_price = price_center + amplitude * np.sin(np.linspace(0, 4 * np.pi, days))
+    return pd.Series(real_price, index=dates, name="real_price")
 
 
-"""
-
-
-def test_find_undervalued_terms():
-    """割安期間を検出する."""
+def test_find_undervalued_terms_and_catchup_date():
+    """割安期間とその直後の追いつき日を検出する."""
     # 2024-01-01 ~ 2024-12-31 を検索期間とする
     v1 = 100.0
     v2 = 50.0
@@ -79,62 +77,35 @@ def test_find_undervalued_terms():
     end_date = "2024-12-31"
     dates = pd.date_range(start=start_date, end=end_date, freq="D")
 
-    # 実株価のテストケース sinカーブ
-    price_center = 800  # 中心
-    amplitude = 400  # 振幅
-    days = len(dates)  # 2024 is a leap year 閏年
-    real_price = price_center + amplitude * np.sin(np.linspace(0, 4 * np.pi, days))
-    real_price_sr = pd.Series(real_price, index=dates, name="real_price")
+    real_price_sr = mk_real_price_sr(dates)
 
-    theoretical_price_sr = resample_eps_to_daily(eps_ls, end_date) * 10
-    theoretical_price_sr.name = "theoretical_price"
+    theoretical_price_sr, underval_rate_sr = to_theorical_price_and_rate(
+        real_price_sr,
+        eps_ls,
+    )
+    terms = find_undervalued_terms(underval_rate_sr, underval_target_rate=0.2)
 
-    underval_rate_sr = (theoretical_price_sr - real_price_sr) / theoretical_price_sr
-    underval_rate_sr.name = "underval_rate"
+    assert len(terms) == 1
+    assert terms[0].interval == (date(2024, 10, 19), date(2024, 12, 12))
 
+    catchup_date = find_latest_catch_up_date(terms[0], underval_rate_sr)
+    assert catchup_date is not None
+    assert catchup_date.date == date(2024, 12, 23)
+
+    # 可視化
     df = pd.concat([real_price_sr, theoretical_price_sr], axis=1)  # DataFrameにまとめる
-    zero_crossing_dates = find_zero_crossings(underval_rate_sr)
+    target_rates = [0, 0.1, 0.15, 0.2]
+    for r in target_rates:
+        aboves = find_undervalued_terms(underval_rate_sr, underval_target_rate=r)
+        catchups = [find_latest_catch_up_date(a, underval_rate_sr) for a in aboves]
 
-    def add_zero_crossings(ax):
-        for date in zero_crossing_dates:
-            ax.axvline(x=date, color="r", linestyle="--", linewidth=1)
-
-    df = pd.concat([real_price_sr, theoretical_price_sr], axis=1)  # DataFrameにまとめる
-    saveimg(df, "threo_real_price", proc_ax=add_zero_crossings)
-
-    # saveimg(df, "threo_real_price")
-    # saveimg(underval_rate_sr, "underval_rate")
-
-    # underval_rate_sr　が
-
-    # 割安期間を検出するロジック
-    # 本来は domain.find_undervalued_terms に実装されるべき
-    # underval_target_rate = 0.2
-    # is_undervalued = df["underval_rate"] > underval_target_rate
-
-    # 連続した True のブロックを見つける
-    # undervalued_terms = []
-    # in_term = False
-    # start_of_term = None
-    # for date, is_under in is_undervalued.items():
-    #     if is_under and not in_term:
-    #         in_term = True
-    #         start_of_term = date
-    #     elif not is_under and in_term:
-    #         in_term = False
-    #         end_of_term = date - pd.Timedelta(days=1)
-    #         undervalued_terms.append((start_of_term, end_of_term))
-
-    # if in_term:
-    #     undervalued_terms.append((start_of_term, is_undervalued.index[-1]))
-    #
-    # # アサーション
-    # assert len(undervalued_terms) == 2
-    # assert undervalued_terms[0][0] == pd.Timestamp("2024-07-15")
-    # assert undervalued_terms[0][1] == pd.Timestamp("2024-09-29")
-    # assert undervalued_terms[1][0] == pd.Timestamp("2024-10-07")
-    # assert undervalued_terms[1][1] == pd.Timestamp("2024-12-25")
-
-
-def test_find_catchup_dates():
-    """追いつき日を検出する."""
+        dates = flatten([above.interval for above in aboves])
+        # df = pd.concat([real_price_sr, theoretical_price_sr], axis=1)
+        # saveimg(
+        #     df,
+        #     f"threo_real_price_{r}",
+        #     ax_proces=(
+        #         add_axes_span([a.interval for a in aboves]),
+        #         add_axes_vertical_line([c.date for c in catchups if c is not None]),
+        #     ),
+        # )
