@@ -1,6 +1,7 @@
 """可視化."""
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
+from datetime import date
 
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -52,3 +53,34 @@ def saveimg(
     ax.set_ylabel(ylabel)
     fig.savefig(f"{title}.png")
     plt.close(fig)
+
+
+def add_axes_vertical_line(dates: Iterable[date]) -> Callable[[Axes], None]:
+    """指定日付に縦線を引く."""
+
+    def _f(ax: Axes):
+        for d in dates:
+            ax.axvline(x=d, color="r", linestyle="--", linewidth=1)
+
+    return _f
+
+
+def add_axes_span(
+    intervals: Iterable[tuple[date, date]], color: str = "lightgray", alpha: float = 0.5
+) -> Callable[[Axes], None]:
+    """指定された区間の背景を色付けする関数を返す.
+
+    Args:
+        intervals: 色付けする区間 (開始日, 終了日) のタプルのイテラブル.
+        color: 色.
+        alpha: 透明度.
+
+    Returns:
+        Axesを処理する関数.
+    """
+
+    def _f(ax: Axes):
+        for start, end in intervals:
+            ax.axvspan(start, end, color=color, alpha=alpha)
+
+    return _f
