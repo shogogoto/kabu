@@ -1,43 +1,17 @@
 """domain."""
 
 from datetime import date, datetime
-from typing import Annotated
 
 import pandas as pd
-from pydantic import BaseModel, BeforeValidator, Field
 from pytz import UTC
 
+from kabu.features.undervalued_search.domain.model import (
+    EPS,
+    CatchUpDate,
+    UnderValuedTerm,
+)
 from kabu.shared.types import date_from_iso_string
 from kabu.shared.utils import find_crossings, find_intervals
-
-
-class UnderValuedTerm(BaseModel):
-    """割安期間."""
-
-    start: date
-    end: date
-
-    @property
-    def interval(self) -> tuple[date, date]:  # noqa: D102
-        return (self.start, self.end)
-
-    def __str__(self):  # noqa: D105
-        return f"{self.start} ~ {self.end}"
-
-
-class CatchUpDate(BaseModel):
-    """実株価が理論株価に追いついた日."""
-
-    date: date
-
-
-class EPS(BaseModel):
-    """Earnings Per Share 1株当たり純利益."""
-
-    report_date: Annotated[date, BeforeValidator(date_from_iso_string)] = Field(
-        title="決算報告日",
-    )
-    value: float
 
 
 def resample_eps_to_daily(

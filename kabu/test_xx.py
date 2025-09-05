@@ -1,11 +1,11 @@
 """test."""
 
-from datetime import date, timedelta
+from datetime import date
 
 import pandas as pd
 import yfinance as yf
 
-from kabu import get_eps_by_jquants, get_stock_price
+from kabu import get_stock_price
 
 
 def test_get_info():
@@ -43,16 +43,13 @@ def test_get_info():
 
     # 日付を1日ずつ増やしながらループ
     current_date = start_date
-    while current_date <= end_date:
-        sp2 = get_eps_by_jquants("8473", str(current_date))
-        print(sp2.reset_index().to_json(indent=2, orient="records", date_format="iso"))
-        print(str(current_date))
-        current_date += timedelta(days=1)
+    # while current_date <= end_date:
+    #     sp2 = get_eps_by_jquants("8473", str(current_date))
+    #     print(sp2.reset_index().to_json(indent=2, orient="records", date_format="iso"))
+    #     print(str(current_date))
+    #     current_date += timedelta(days=1)
 
-        # sleep(1)
+    # sleep(1)
     # print(Settings().get_jquants_token())
 
     # 2023-08-03 に現れた 他は空
-
-
-# def test_

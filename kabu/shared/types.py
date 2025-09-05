@@ -15,4 +15,3 @@ def date_from_iso_string(value: str | date) -> date:
         return value
     msg = f"Unsupported type for date conversion: {type(value)}"
     raise TypeError(msg)
-

@@ -8,12 +8,12 @@ import pytest
 from pandas.core.common import flatten
 
 from kabu.features.undervalued_search.domain import (
-    EPS,
     find_latest_catch_up_date,
     find_undervalued_terms,
     resample_eps_to_daily,
     to_theorical_price_and_rate,
 )
+from kabu.features.undervalued_search.domain.model import EPS
 
 
 def test_resample():
@@ -59,29 +59,31 @@ def mk_real_price_sr(dates: list[date]) -> pd.Series:
     return pd.Series(real_price, index=dates, name="real_price")
 
 
-def test_find_undervalued_terms_and_catchup_date():
-    """割安期間とその直後の追いつき日を検出する."""
-    # 2024-01-01 ~ 2024-12-31 を検索期間とする
+def mk_eps_ls():
+    """テストケース作成."""
     v1 = 100.0
     v2 = 50.0
     v3 = 90.0
     v4 = 70.0
 
-    eps_ls = [
+    return [
         EPS(report_date="2023-12-31", value=v1),
         EPS(report_date="2024-03-31", value=v2),
         EPS(report_date="2024-06-30", value=v3),
         EPS(report_date="2024-09-30", value=v4),
     ]
+
+
+def test_find_undervalued_terms_and_catchup_date():
+    """割安期間とその直後の追いつき日を検出する."""
+    # 2024-01-01 ~ 2024-12-31 を検索期間とする
     start_date = "2024-01-01"
     end_date = "2024-12-31"
     dates = pd.date_range(start=start_date, end=end_date, freq="D")
-
     real_price_sr = mk_real_price_sr(dates)
-
     theoretical_price_sr, underval_rate_sr = to_theorical_price_and_rate(
         real_price_sr,
-        eps_ls,
+        mk_eps_ls(),
     )
     terms = find_undervalued_terms(underval_rate_sr, underval_target_rate=0.2)
 
