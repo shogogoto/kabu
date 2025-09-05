@@ -4,6 +4,7 @@ from functools import cache
 from pathlib import Path
 
 import pandas as pd
+from pandas.core.generic import ArrayLike
 
 from kabu.shared.settings import Settings
 
@@ -31,20 +32,29 @@ def _get_statements_all(start_dt: str, end_dt: str) -> pd.DataFrame:
         end_dt=end_dt,
         cache_dir=s.JQ_CACHE_DIR,
     )
-    df.to_json(cache_path, indent=2, orient="records")
+
+    df.to_json(
+        cache_path,
+        indent=2,
+        orient="records",
+        date_format="iso",  # date が intに変換されないように
+        force_ascii=False,  # 日本語を保持
+    )
     return df
 
 
 def get_statements_cached(
-    code: str,
+    code: str,  # 銘柄コード + 0 で 5文字
     # 2025/9/5で使用できたfreeプランの期間
     start_dt="20230613",
     end_dt="20250613",
-) -> pd.DataFrame:
-    """cacheを利用して財務情報を取得する.
+) -> pd.DataFrame | pd.Series:
+    """特定の銘柄コードの財務情報を取得する."""
+    df = _get_statements_all(start_dt, end_dt)
+    return df[df["LocalCode"] == code]
 
-    銘柄指定や期間指定はこのキャッシュを利用する
-    """
-    return _get_statements_all(start_dt, end_dt)
 
-    # print(df["LocaoCode"])
+def get_codes_has_statements(start_dt="20230613", end_dt="20250613") -> ArrayLike:
+    """財務情報がある銘柄コードを取得する."""
+    df = _get_statements_all(start_dt, end_dt)
+    return df["LocalCode"].unique()
