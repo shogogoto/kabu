@@ -52,7 +52,7 @@ def resample_eps_to_daily(
 
 
 def to_theorical_price_and_rate(
-    real_stock_price: pd.Series,
+    real_stock_price: pd.Series | pd.DataFrame,
     eps_ls: list[EPS],
 ) -> tuple[pd.Series, pd.Series]:
     """理論株価と割安比を返す."""

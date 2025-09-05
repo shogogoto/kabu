@@ -18,14 +18,6 @@ def saveimg(
     ax_proces: Iterable[AxesProc] = (),
 ):
     """Save plot as image."""
-    # plt.figure(figsize=(12, 6))
-    # plt.plot(df.index, df)
-    # plt.title(title)
-    # plt.xlabel("Date")
-    # plt.ylabel("EPS")
-    # plt.grid(True)
-    # plt.savefig(f"{title}.png")
-
     fig, ax = plt.subplots(figsize=(12, 6))
     df.plot(ax=ax, title=title, grid=True)
 

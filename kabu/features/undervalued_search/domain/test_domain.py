@@ -5,7 +5,6 @@ from datetime import date
 import numpy as np
 import pandas as pd
 import pytest
-from pandas.core.common import flatten
 
 from kabu.features.undervalued_search.domain import (
     find_latest_catch_up_date,
@@ -98,16 +97,6 @@ def test_find_undervalued_terms_and_catchup_date():
     df = pd.concat([real_price_sr, theoretical_price_sr], axis=1)  # DataFrameにまとめる
     target_rates = [0, 0.1, 0.15, 0.2]
     for r in target_rates:
-        aboves = find_undervalued_terms(underval_rate_sr, underval_target_rate=r)
-        catchups = [find_latest_catch_up_date(a, underval_rate_sr) for a in aboves]
-
-        dates = flatten([above.interval for above in aboves])
-        # df = pd.concat([real_price_sr, theoretical_price_sr], axis=1)
-        # saveimg(
-        #     df,
-        #     f"threo_real_price_{r}",
-        #     ax_proces=(
-        #         add_axes_span([a.interval for a in aboves]),
-        #         add_axes_vertical_line([c.date for c in catchups if c is not None]),
-        #     ),
-        # )
+        fname = (f"threo_real_price_{r}",)
+        # terms, catchups = find_undervalued(underval_rate_sr, r)
+        # save_undervalued_img(df, terms, catchups, save_name)

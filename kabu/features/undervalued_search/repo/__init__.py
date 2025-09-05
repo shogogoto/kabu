@@ -4,7 +4,7 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 
-from kabu.features.undervalued_search.domain.model import EPS
+from kabu.features.undervalued_search.domain.model import EPS as EPS
 from kabu.shared.types import date_from_iso_string
 
 
@@ -15,9 +15,11 @@ def start_date_from_end(end_yyyymmdd: str, past_months: int) -> date:
     return end_date - delta
 
 
-def eps_adapter(code: str, start_date: date, end_date: date) -> list[EPS]:
-    """任意のeps datasourceとのインターフェイス."""
-    return []
+def end_date_from_start(start_yyyymmdd: str, months: int) -> date:
+    """検索期間の開始日と月数から終了日を計算する."""
+    start_date = date_from_iso_string(start_yyyymmdd)
+    delta = relativedelta(months=months)
+    return start_date + delta
 
 
 def search_undervalued_stock(
@@ -46,7 +48,6 @@ def search_undervalued_stock(
     """
     start_date = start_date_from_end(end_yyyymmdd, past_months)
     end_date = date_from_iso_string(end_yyyymmdd)
-    eps_ls = eps_adapter(code, start_date, end_date)
 
     # aaa
     print("Ahan")

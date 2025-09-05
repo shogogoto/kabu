@@ -18,3 +18,6 @@ def test_study():
     # diff = pd.concat([f1, f2]).drop_duplicates(keep=False)
     # print("Diff:")
     # print(diff)
+
+    # df = get_stock_price("8473", "2022-01-01", "2022-12-31")
+    # print(df)

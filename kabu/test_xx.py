@@ -1,33 +1,16 @@
 """test."""
 
-from datetime import date
-
-import pandas as pd
-import yfinance as yf
-
-from kabu import get_stock_price
-
 
 def test_get_info():
     """動作確認用."""
-    df = pd.read_csv("data_j.csv")
     # 最初のコードをサンプルとして使用します
-    code = df["コード"][0]
-
-    # yfinance用にティッカーコードを整形します (例: 1301 -> 1301.T)
-    ticker_code = f"{code}.T"
-
-    ticker = yf.Ticker(ticker_code)
-
-    # ticker.info からEPSを取得します
-    eps = ticker.info.get("trailingEps", "データなし")
 
     # print(f"コード: {code}")
     # print(f"yfinanceティッカー: {ticker_code}")
     # print(f"EPS: {eps}")
 
-    sp = get_stock_price("8473", "2022-01-01", "2022-12-31")
-    print(type(sp))
+    # sp = get_stock_price("8473", "2022-01-01", "2022-12-31")
+    # print(type(sp))
     # reset_index()を使って、インデックスになっている日付を通常の列に変換することで、JSONに日付を含める
     # print(sp.reset_index().to_json(indent=2, orient="records", date_format="iso"))
 
