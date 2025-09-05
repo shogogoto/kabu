@@ -27,12 +27,16 @@ def get_eps_from_csv(path: Path) -> list[EPS]:
     ]
 
 
-def get_eps_from_jquants(code: str) -> list[EPS]:
+def get_eps_from_jquants(
+    code: str,
+    start_dt="20230613",
+    end_dt="20250613",
+) -> list[EPS]:
     """jquantsのEPSを取得する."""
     if len(code) == 4:
         code = f"{code}0"
 
-    df = get_statements_cached(code)
+    df = get_statements_cached(code, start_dt, end_dt)
     return [
         EPS(report_date=row["DisclosedDate"], value=row["EarningsPerShare"])
         for _, row in df.iterrows()

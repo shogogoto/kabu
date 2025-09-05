@@ -20,35 +20,3 @@ def end_date_from_start(start_yyyymmdd: str, months: int) -> date:
     start_date = date_from_iso_string(start_yyyymmdd)
     delta = relativedelta(months=months)
     return start_date + delta
-
-
-def search_undervalued_stock(
-    code: str,
-    underval_target_rate: float,
-    end_yyyymmdd: str,
-    past_months: int,
-    # eps_source:
-):
-    """理論株価よりも実株価が安い期間と買い時を検索する.
-
-    Args:
-        code: 銘柄コード
-        underval_target_rate: r < 理論株価 - 実株価 / 理論株価 な期間を絞る割安比率
-        end_yyyymmdd: 検索期間の終わり
-        past_months: 遡り月数
-    Returns:
-        割安期間と追いつき日とそれぞれの日の実株価と利益のリスト
-        割安期間: 割安ターゲット比よりも割安な期間
-        買い時 = 追いつき日 + 1
-        株価
-            割安期間
-            買いタイミング
-        利益 = 買い時 - 割安開始日
-
-    """
-    start_date = start_date_from_end(end_yyyymmdd, past_months)
-    end_date = date_from_iso_string(end_yyyymmdd)
-
-    # aaa
-    print("Ahan")
-    print("Ahan")

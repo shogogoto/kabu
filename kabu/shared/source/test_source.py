@@ -1,10 +1,17 @@
 """source test."""
 
+from kabu.shared.settings import Settings
+
 
 def test_study():
     """動作調査用."""
-    # client = Settings().jquants_client
+    client = Settings().jquants_client
 
+    # x = client.get_market_segments()
+    # x = client.get_markets_short_selling_positions_range()  # ng at free plan
+    # x = client.get_markets_short_selling_positions(code="8473")  # ng at free plan
+    # x = client.get_markets_short_selling(sector_33_code="0050") # ng at free plan
+    # print(x)
     # a = client.get_fins_announcement() # ok
     # x = client.get_fs_details_range(cache_dir="kabu_cache/") # ng
 
