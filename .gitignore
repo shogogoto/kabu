@@ -211,3 +211,5 @@ __marimo__/
 # output for images
 *.html
 *.png
+
+kabu_cache/
