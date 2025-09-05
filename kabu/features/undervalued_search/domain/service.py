@@ -49,7 +49,11 @@ def to_result(
     price: pd.DataFrame,
 ):
     """検索結果をまとめる."""
-    profit = price.loc[catchup.tomorrow] - price.loc[pd.Timestamp(term.start)]
+    profit = (
+        price.loc[catchup.tomorrow] - price.loc[pd.Timestamp(term.start)]
+        if catchup is not None
+        else None
+    )
     return {
         "code": code,
         "割安ターゲット比": r_underval,
@@ -57,10 +61,12 @@ def to_result(
         "検索期間 終了日": search_end,
         "割安開始日": term.start,
         "割安終了日": term.end,
-        "買いタイミング": catchup.tomorrow,
+        "買いタイミング": catchup.tomorrow if catchup is not None else None,
         "実株価(割安開始日)": price.loc[term.start_stamp],
         "実株価(割安終了日)": price.loc[term.end_stamp],
-        "実株価(買いタイミング)": price.loc[catchup.tomorrow],
+        "実株価(買いタイミング)": price.loc[catchup.tomorrow]
+        if catchup is not None
+        else None,
         "利益": profit,
-        "利益率": profit / price.loc[catchup.tomorrow],
+        "利益率": profit / price.loc[catchup.tomorrow] if catchup is not None else None,
     }

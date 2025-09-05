@@ -29,6 +29,7 @@ def search_undervalued(
         r_target: r < 理論株価 - 実株価 / 理論株価 な期間を絞る割安比率
         start_yyyymmdd: 検索期間の始まり
         end_yyyymmdd: 検索期間の終わり
+        save_img: 可視化するか
     Returns:
         割安期間と追いつき日とそれぞれの日の実株価と利益のリスト
         割安期間: 割安ターゲット比よりも割安な期間
@@ -44,14 +45,17 @@ def search_undervalued(
 
     start_date = eps_daily.index.min()
     end_date = eps_daily.index.max()
-    price_raw = get_stock_price(code, start_date, end_date)["Open"]
+    price = get_stock_price(code, start_date, end_date)["Open"]
 
-    theo_price, r_underval = to_theorical_price_and_rate(price_raw, eps_ls)
-    df = pd.concat([price_raw, theo_price], axis=1)
+    if price.empty:
+        return pd.DataFrame()
+
+    theo_price, r_underval = to_theorical_price_and_rate(price, eps_ls)
+    df = pd.concat([price, theo_price], axis=1)
 
     # locで使うための補間済み株価を作成
     all_days = pd.date_range(start=start_date, end=end_date, freq="D")
-    price = price_raw.reindex(all_days, method="bfill")
+    price = price.reindex(all_days, method="bfill")
 
     terms, catchups = find_undervalued(r_underval, r_target)
     results = []

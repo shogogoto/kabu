@@ -27,7 +27,7 @@ def get_stock_price(
         if cache_path.exists():
             return pd.read_csv(cache_path, index_col="Date", parse_dates=True)
 
-        ticker = yf.Ticker(f"{code}.T")
+        ticker = yf.Ticker(f"{code[:4]}.T")
         df = ticker.history(start=start_date, end=end_date)
 
         if not df.empty:
@@ -37,6 +37,9 @@ def get_stock_price(
 
     df = _f()
     # yfinanceから取得したデータはタイムゾーンを持つことがあるため、削除する
+
+    if df.empty:
+        return df
+
     df.index = df.index.tz_localize(None)
     return df
-
