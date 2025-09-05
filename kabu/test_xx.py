@@ -38,11 +38,11 @@ def test_get_info():
     # {"Your subscription covers the following dates: 2023-06-11 ~ 2025-06-11.
     # If you want more data, please check other plans:https://jpx-jquants.com/"}
 
-    start_date = date(2023, 8, 3)
-    end_date = date(2025, 6, 11)
+    # start_date = date(2023, 8, 3)
+    # end_date = date(2025, 6, 11)
 
     # 日付を1日ずつ増やしながらループ
-    current_date = start_date
+    # current_date = start_date
     # while current_date <= end_date:
     #     sp2 = get_eps_by_jquants("8473", str(current_date))
     #     print(sp2.reset_index().to_json(indent=2, orient="records", date_format="iso"))

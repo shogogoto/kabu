@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     JQUANTS_PASSWORD: str
 
     JQ_CACHE_DIR: str = "kabu_cache/"
+    STOCK_PRICE_CACHE_DIR: str = "kabu_cache/stock_price/"
 
     # def get_jquants_token(self):
     #     """JQuantsのトークンを取得する."""
