@@ -8,8 +8,8 @@ from kabu.features.undervalued_search.usecase import search_undervalued
 from kabu.shared.source.jquants import get_codes_has_statements
 
 
-def test_get_eps():
-    """EPS取得テスト."""
+def test_execute_search():
+    """テストでプログラムの実行を代用."""
     # code = "8473"
     codes = get_codes_has_statements()
     total = len(codes)

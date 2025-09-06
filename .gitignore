@@ -213,3 +213,6 @@ __marimo__/
 *.png
 
 kabu_cache/
+
+*.zip
+*.csv

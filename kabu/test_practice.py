@@ -1,7 +1,7 @@
 """test."""
 
 
-def test_get_info():
+def test_work():
     """動作確認用."""
     # 最初のコードをサンプルとして使用します
 
