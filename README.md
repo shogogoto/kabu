@@ -9,7 +9,22 @@
   - いろんな拡張機能(プラグイン)があるから、適宜使うべし。
 
 このファイルをAIにコピペしたりしつつ、環境整備をしてくれ
+以下のように聞いたら教えてくれた例
+> Q. 以下の手順を windows11向けに教えて winget を使えるなら使うなどしてできるだけモダンな方法で
 
+回答の一部
+```powershell
+# Git、Python、VS Code をインストール
+winget install Git.Git --source winget --accept-package-agreements
+winget install Python.Python.3.11 --source winget --accept-package-agreements
+winget install Microsoft.VisualStudioCode --source winget --accept-package-agreements
+
+# Poetry をインストール（推奨される公式の方法）
+(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+```
+
+
+こういうコマンドを教えてくれるのでいろいろ聞いてやってみて！
 
 ## 準備
 必要なものを全てインストールできていることが前提
